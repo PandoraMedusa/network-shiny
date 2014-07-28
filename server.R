@@ -4,6 +4,7 @@
 ###############################################################################
 library(shiny)
 library(network)
+library(ergm)
 library(shinyData)
 source("functions.R")
 
@@ -18,16 +19,52 @@ shinyServer(
    data(sampson)
    data(para)
    data(plotnetworkExp)
-   nw.reac <- reactive({
-      if(input$goButton==0)return()
-      input$goButton
-      isolate(eval(parse(text = input$dataset)))
+   
+ #upload file convert to network data
+     dataRe <- reactive({
+       # input$file1 will be NULL initially. After the user selects
+       # and uploads a file, it will be a data frame with 'name',
+       # 'size', 'type', and 'datapath' columns. The 'datapath'
+       # column will contain the local filenames where the data can
+       # be found.
+       inFile <- input$file1    
+       if (is.null(inFile))
+         return(NULL)
+       read.csv(inFile$datapath,header=FALSE,stringsAsFactors=FALSE)    
      })
+   
+     # input the vertex
+     dataVertex <- reactive({
+       inFile <- input$file2    
+       if (is.null(inFile))
+         return(NULL)
+       read.csv(inFile$datapath,header=FALSE,stringsAsFactors=FALSE)
+     })
+   
+  
+     relations <- as.matrix(dataRe())
+     nodeInfo <- dataVertex()
+     rownames(relations) <- nodeInfo$name
+     colnames(relations) <- nodeInfo$name
+     nrelations <- network(relations,directed=FALSE)
+     
+     network.vertex.names(nrelations)
+
+ 
+   
+  # Get the choosen network data from nw. 
+  nw.reac <- reactive({
+    if(input$goButton==0)return()  
+    input$goButton
+    isolate(eval(parse(text = input$dataset)))
+  })
+   
    #number of nodes in nw
    nodes <- reactive({
       if(input$goButton==0)return()
       input$goButton
-      isolate(nw.reac()$gal$n)}) 
+      isolate(nw.reac()$gal$n)})
+  
    #get coordinates to plot network with
    coords <- reactive({
       if(input$goButton==0)return()
@@ -378,6 +415,7 @@ shinyServer(
       tryCatch(eval(parse(text=paste("tryCatch(expr=plot.network(nw,coord=coords()",tmp,paste(plotlist,sep=",",collapse=","),"),error=function(cond) {cat('Input value is invalid')})")
           )),error=function(e)cat("Input format is invalid"))
      })
+
    ########Jul 18, 2014######## generate plot ########
    output$nwplot <- renderPlot({
       printPlot()
@@ -405,7 +443,14 @@ shinyServer(
      },
      content = function(file) { 
       jpeg(file)
-      plot(network(10))
+      input$goButton
+      nw <- isolate({nw.reac()})
+      plotlist <- argFun()
+      #only add , if there is argument after nw
+      tmp <- if(length(plotlist)){","}
+      # add error handler
+      tryCatch(eval(parse(text=paste("tryCatch(expr=plot.network(nw,coord=coords()",tmp,paste(plotlist,sep=",",collapse=","),"),error=function(cond) {cat('Input value is invalid')})")
+          )),error=function(e)cat("Input format is invalid"))
       dev.off()
      },contentType="image/png")
    
