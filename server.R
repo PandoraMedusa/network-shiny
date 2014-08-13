@@ -20,7 +20,20 @@ shinyServer(
    data(para)
    data(plotnetworkExp)
    
- #upload file convert to network data
+   output$text <- renderPrint({
+     if(is.null(input$file1) & input$dataset)
+       cat("Please load data.\n")
+     else {
+       if(!is.null(input$file1)) cat("here is the data:\n")
+     }
+   })
+   
+   output$summary <- renderDataTable({
+     if(!input$dataset) {
+       
+     }
+   }) 
+  
      dataRe <- reactive({
        # input$file1 will be NULL initially. After the user selects
        # and uploads a file, it will be a data frame with 'name',
@@ -41,22 +54,36 @@ shinyServer(
        read.csv(inFile$datapath,header=FALSE,stringsAsFactors=FALSE)
      })
    
-  
+  upload.nw <- reactive({
      relations <- as.matrix(dataRe())
      nodeInfo <- dataVertex()
      rownames(relations) <- nodeInfo$name
      colnames(relations) <- nodeInfo$name
      nrelations <- network(relations,directed=FALSE)
-     
-     network.vertex.names(nrelations)
-
- 
+     #network.vertex.names(nrelations)
+  })
    
+
+#   upload.nw <- reactive({
+#     dataVertex <- read.csv("vertexAttributes.csv",header=FALSE,stringsAsFactors=FALSE)
+#     dataRe <- read.csv("relationalData.csv",header=FALSE,stringsAsFactors=FALSE)
+#     relations <- as.matrix(dataRe)
+#     nodeInfo <- dataVertex
+#     rownames(relations) <- nodeInfo$name
+#     colnames(relations) <- nodeInfo$name
+#     nrelations <- network(relations,directed=FALSE)
+#     
+#   })
   # Get the choosen network data from nw. 
   nw.reac <- reactive({
-    if(input$goButton==0)return()  
-    input$goButton
-    isolate(eval(parse(text = input$dataset)))
+    inFile <- input$file1
+    if(!is.null(inFile)) {
+      plot(upload.nw())
+      upload.nw()
+    } else{
+      if(input$goButton==0)return()  
+      input$goButton
+      isolate(eval(parse(text = input$dataset)))}
   })
    
    #number of nodes in nw

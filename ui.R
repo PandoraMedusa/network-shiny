@@ -44,6 +44,7 @@ shinyUI(fluidPage(
             fluidRow(
               column(12,
                 wellPanel(
+
                   h3('Upload own files'),
                   fileInput('file1', 'Choose relation file to upload',
                             accept = c(
@@ -65,9 +66,39 @@ shinyUI(fluidPage(
                               '.tsv'
                             )
                   ),
-                  #actionButton('goButton', 'Run'),
                   tags$hr(),
-
+                  
+                    
+#                   checkboxInput("dataset", "Load user dataset? Otherwise choose the default data"),
+#                   textOutput('text'),
+#                   conditionalPanel(
+#                     condition = "input.dataset == true",
+#                    
+#                     fileInput('file1', 'Choose relation file to upload',
+#                               accept = c(
+#                                 'text/csv',
+#                                 'text/comma-separated-values',
+#                                 'text/tab-separated-values',
+#                                 'text/plain',
+#                                 '.csv',
+#                                 '.tsv'
+#                               )
+#                     ),
+#                     fileInput('file2', 'Choose Vertex file to upload',
+#                               accept = c(
+#                                 'text/csv',
+#                                 'text/comma-separated-values',
+#                                 'text/tab-separated-values',
+#                                 'text/plain',
+#                                 '.csv',
+#                                 '.tsv'
+#                               )
+#                     ),
+#                   br()
+#                   ),
+#                   #actionButton('goButton', 'Run'),
+#                   
+                  
                   h3('Choose a dataset'),
                   selectInput('dataset',
                     label = 'Sample datasets',
