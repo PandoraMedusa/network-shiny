@@ -1,6 +1,6 @@
 # TODO: Add comment
 # 
-# Author: kirk
+# Author: kirk, Tongfang
 ###############################################################################
 library(shiny)
 library(network)
